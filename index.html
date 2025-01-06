@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/Users/dhanurenga/Documents/web_development/registration/registration.css">
+    <title>Registration Form</title>
+</head>
+
+<body>
+    <div class="fullscreen">
+        <div class="container1">
+            <h1>Registration</h1>
+            <table>
+                <tr>
+                    <td><label for="fname">Firstname</label></td>
+                    <td><input type="text" id="fname"><br>
+                        <span id="ferr"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><label for="lname">Lastname</label></td>
+                    <td><input type="text" id="lname"><br>
+                        <span id="lna"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><label for="pass">Password</label></td>
+                    <td><input type="password" id="pass"><br>
+                        <span id="pswd"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><label for="cpass">Confirm Password</label></td>
+                    <td><input type="password" id="cpass"><br>
+                        <span id="cpswd"></span>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td><label for="phone">Phone Number</label></td>
+                    <td><input type="text" id="phone"><br>
+                        <span id="phno"></span>
+                    </td>
+                </tr>
+
+            </table>
+
+            <button onclick="valid()">Register Now</button>
+        </div>
+
+        <div id="dy-data" class="container-right">
+            <h2>Registered Users</h2>
+            <table id="dyy-data">
+                <thead>
+                    <tr>
+                        <th>Firstname</th>
+                        <th>Lastname</th>
+                        <th>Password</th>
+                        <th>Phone Number</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- User data will be dynamically added here -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Function to validate the form inputs and store data in localStorage
+        function valid() {
+            var fname = document.getElementById('fname').value;
+            var ferr = document.getElementById('ferr');
+            var lname = document.getElementById('lname').value;
+            var lna = document.getElementById('lna');
+            var pass = document.getElementById('pass').value;
+            var pswd = document.getElementById('pswd');
+            var cpass = document.getElementById('cpass').value;
+            var cpswd = document.getElementById('cpswd');
+            var phone = document.getElementById('phone').value;
+            var phno = document.getElementById('phno');
+
+            // Validate inputs
+            if (fname === '') {
+                ferr.innerHTML = "Firstname is required";
+                return;
+            } else {
+                ferr.innerHTML = "";
+            }
+
+            if (lname === '') {
+                lna.innerHTML = "Lastname is required";
+                return;
+            } else {
+                lna.innerHTML = "";
+            }
+
+            if (pass === '') {
+                pswd.innerHTML = "Password is required";
+                return;
+            } else if (pass.length < 6 || pass.length > 8) {
+                pswd.innerHTML = "Password should have 6 to 8 characters";
+                return;
+            } else {
+                pswd.innerHTML = "";
+            }
+
+            if (pass !== cpass) {
+                cpswd.innerHTML = "Passwords don't match";
+                return;
+            } else {
+                cpswd.innerHTML = "";
+            }
+
+            if (phone === '') {
+                phno.innerHTML = "Phone number is required";
+                return;
+            } else if (phone.length !== 10) {
+                phno.innerHTML = "Phone number should have 10 digits";
+                return;
+            } else {
+                phno.innerHTML = "";
+            }
+
+            // Create an object to store the user data
+            var user = {
+                Fname: fname,
+                Lname: lname,
+                Password: pass,
+                Phone: phone,
+            };
+
+            // Store data in localStorage
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            users.push(user);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Clear form fields
+            document.getElementById('fname').value = '';
+            document.getElementById('lname').value = '';
+            document.getElementById('pass').value = '';
+            document.getElementById('cpass').value = '';
+            document.getElementById('phone').value = '';
+
+            // Refresh the displayed data
+            displayData();
+        }
+
+        // Function to display user data from localStorage
+        function displayData() {
+            var dy = document.getElementById('dy-data').getElementsByTagName('tbody')[0];
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Clear existing table rows
+            dy.innerHTML = '';
+
+            // Loop through users and create a row for each user
+            users.forEach(function (user, index) {
+                var tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${user.Fname}</td>
+                    <td>${user.Lname}</td>
+                    <td>${user.Password}</td>
+                    <td>${user.Phone}</td>
+                    <td>
+                        <button class="action-edit" onclick="editUser(${index})">Edit</button>
+                        <button class="action-delt" onclick="deleteUser(${index})">Delete</button>
+                    </td>
+                `;
+                dy.appendChild(tr);
+            });
+        }
+
+        // Function to edit user data
+        function editUser(index) {
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+            var user = users[index];
+
+            // Populate form fields with the user data
+            document.getElementById('fname').value = user.Fname;
+            document.getElementById('lname').value = user.Lname;
+            document.getElementById('pass').value = user.Password;
+            document.getElementById('cpass').value = user.Password;
+            document.getElementById('phone').value = user.Phone;
+
+            // Remove the user from the array and update localStorage
+            users.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Refresh the displayed data
+            displayData();
+        }
+
+        // Function to delete user data
+        function deleteUser(index) {
+            var users = JSON.parse(localStorage.getItem('users')) || [];
+
+            // Remove the user from the array and update localStorage
+            users.splice(index, 1);
+            localStorage.setItem('users', JSON.stringify(users));
+
+            // Refresh the displayed data
+            displayData();
+        }
+
+        // Display the data when the page loads
+        window.onload = function () {
+            displayData();
+        }
+    </script>
+</body>
+
+</html>
